@@ -1,0 +1,28 @@
+/* Reset default page spacing so the placeholder app can center correctly */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial;
+  /* 25% lighter than #2f2f2f (mixed with white) */
+  background: #636363;
+  color: #eaeaea;
+}
+
+/* Ensure the root element stretches so App's min-height:100vh works as expected */
+#root {
+  min-height: 100vh;
+}

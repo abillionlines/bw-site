@@ -1,0 +1,111 @@
+:root {
+  --header-height: 72px;
+  --footer-height: 56px;
+  /* leave root bg transparent so body background shows through */
+  --bg: transparent;
+}
+
+.placeholder-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.placeholder-header,
+.placeholder-footer {
+  width: 100%;
+  /* darker solid bars */
+  background: #2b2b2b;
+}
+
+.placeholder-header {
+  height: var(--header-height);
+}
+
+/* center header contents vertically */
+.placeholder-header {
+  display: flex;
+  align-items: center;
+}
+
+.header-container {
+  padding: 0 16px;
+}
+
+/* Wavy header text */
+.wavy {
+  margin: 0;
+  padding: 0;
+  /* ~50% darker than #f1f1f1 -> approx #797979 */
+  color: #797979;
+  font-weight: 600;
+  /* decreased spacing by 25% (0.18em * 0.75 = 0.135em) */
+  letter-spacing: 0.135em;
+  font-size: clamp(18px, 3.5vw, 28px);
+  text-transform: lowercase;
+}
+
+.wavy span {
+  display: inline-block;
+  transform-origin: center bottom;
+  /* run one wave cycle every 4 seconds */
+  animation: wave 4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.08s);
+  /* reduce margin between character spans by 25% */
+  margin-right: 0.09em;
+}
+
+.wavy span:last-child {
+  margin-right: 0;
+}
+
+/* Wave occupies the first ~26% of the 4s cycle (~1.05s), then stays still until next cycle */
+@keyframes wave {
+  0% {
+    transform: translateY(0);
+  }
+  13% {
+    transform: translateY(-8px);
+  }
+  26% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.placeholder-footer {
+  height: var(--footer-height);
+}
+
+.placeholder-main {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.placeholder-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  /* removed panel background so image sits directly on page background */
+  background: transparent;
+  border-radius: 0;
+}
+
+.placeholder-image {
+  max-width: 100%;
+  max-height: calc(100vh - var(--header-height) - var(--footer-height) - 56px);
+  object-fit: contain;
+  border-radius: 6px;
+  /* moderate shadow so image separates slightly from the page background */
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
