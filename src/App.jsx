@@ -32,7 +32,7 @@ function WavyText({ text = "coming\u00A0\u00A0soon..." }) {
 export default function App() {
   return (
     <div className="placeholder-root">
-      <header className="placeholder-header" aria-hidden={false}>
+      <header className="placeholder-header">
         <div className="placeholder-container header-container">
           <WavyText />
         </div>
@@ -41,7 +41,7 @@ export default function App() {
         <div className="placeholder-container">
           <img
             src={stillwater}
-            alt="placeholder"
+            alt="Stillwater landscape photograph"
             className="placeholder-image"
           />
         </div>
