@@ -2,17 +2,15 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import img1 from "../assets/transition-images/image.jpg";
-import img2 from "../assets/transition-images/StillWater2.jpg";
-import img3 from "../assets/transition-images/stillwater portrait.jpg";
-import img4 from "../assets/transition-images/CB787A7C-36DD-43DF-BEE5-09401B70F435_1_201_a.jpeg";
-import img5 from "../assets/transition-images/IMG_0516.jpg";
-import img6 from "../assets/transition-images/902EB426-B075-440F-9A7C-DCC8368DFB53_1_105_c.jpeg";
-import img7 from "../assets/transition-images/EF05DFC2-AC5E-49F2-B830-3194577C7D32_1_105_c.jpeg";
-import img8 from "../assets/transition-images/74B92F53-F170-411C-9F38-AD28940CFDDA_1_105_c.jpeg";
-import img9 from "../assets/transition-images/94D025A2-B193-4FA8-B33D-B59E815C457F_1_105_c.jpeg";
-
-gsap.registerPlugin(ScrollTrigger);
+import img1 from "../assets/transition-images/image.webp";
+import img2 from "../assets/transition-images/StillWater2.webp";
+import img3 from "../assets/transition-images/stillwater portrait.webp";
+import img4 from "../assets/transition-images/CB787A7C-36DD-43DF-BEE5-09401B70F435_1_201_a.webp";
+import img5 from "../assets/transition-images/IMG_0516.webp";
+import img6 from "../assets/transition-images/902EB426-B075-440F-9A7C-DCC8368DFB53_1_105_c.webp";
+import img7 from "../assets/transition-images/EF05DFC2-AC5E-49F2-B830-3194577C7D32_1_105_c.webp";
+import img8 from "../assets/transition-images/74B92F53-F170-411C-9F38-AD28940CFDDA_1_105_c.webp";
+import img9 from "../assets/transition-images/94D025A2-B193-4FA8-B33D-B59E815C457F_1_105_c.webp";
 
 const ALL_IMGS = [img1, img2, img3, img4, img5, img6, img7, img8, img9];
 
@@ -65,65 +63,51 @@ export default function TransitionScene({ index }) {
     const scene = sceneRef.current;
     const wrapper = wrapperRef.current;
     const gridCells = scene.querySelectorAll(".ts-cell");
-    // Trigger off the next sibling (the Hear pin-section)
-    // The wrapper is now inside .ts-spacer, so climb up to find the next section
     const spacer = wrapper.closest(".ts-spacer") ?? wrapper;
-    const nextSection = spacer.nextElementSibling;
-    if (!scene || !wrapper || !nextSection) return;
+    if (!scene || !wrapper) return;
 
-    const speeds = [0.6, 1.0, 0.75, 0.9, 0.55, 0.85];
     const vw = window.innerWidth;
-
-    // Assign each cell a random off-screen x start: left or right outside viewport
     const cellArr = Array.from(gridCells);
-    const xOrigins = cellArr.map(() =>
-      Math.random() < 0.5 ? -(vw * 1.4) : vw * 1.4,
+
+    // Each cell starts off-screen left or right (alternating, deterministic)
+    const xOrigins = cellArr.map((_, i) =>
+      i % 2 === 0 ? -(vw * 0.55) : vw * 0.55,
     );
 
-    gsap.set(scene, { opacity: 0 });
+    gsap.set(scene, { autoAlpha: 0 });
     cellArr.forEach((cell, i) => {
-      gsap.set(cell, { x: xOrigins[i], opacity: 0, scale: 0.25 });
+      gsap.set(cell, { x: xOrigins[i], autoAlpha: 0 });
     });
 
-    // Shuffle indices for random arrival order
-    const order = cellArr.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const tl = gsap.timeline({ defaults: { ease: "none" } });
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: nextSection,
-        start: "top 100%",
-        end: "top 15%",
-        scrub: 2,
-      },
+    tl.to(scene, { autoAlpha: 1, duration: 0.1 });
+    tl.to(cellArr, { x: 0, autoAlpha: 1, duration: 0.4, stagger: 0.08 }, "<");
+    tl.to({}, { duration: 0.2 });
+    tl.to(cellArr, {
+      x: (i) => xOrigins[i] * -0.4,
+      autoAlpha: 0,
+      duration: 0.4,
+      stagger: 0.06,
     });
+    tl.to(scene, { autoAlpha: 0, duration: 0.1 }, "-=0.1");
 
-    tl.to(scene, { opacity: 1, duration: 0.05, ease: "none" });
-
-    // Cells slide in from their random side one by one in shuffled order
-    order.forEach((idx, i) => {
-      tl.to(
-        cellArr[idx],
-        { x: 0, opacity: 1, scale: 1, duration: 0.08, ease: "power4.out" },
-        `<${i * 0.015}`,
-      );
+    const st = ScrollTrigger.create({
+      trigger: spacer,
+      start: "top 80%",
+      end: "bottom 20%",
+      scrub: true,
+      animation: tl,
+      onEnter: () =>
+        cellArr.forEach((c) => (c.style.willChange = "transform, opacity")),
+      onLeave: () => cellArr.forEach((c) => (c.style.willChange = "auto")),
+      onEnterBack: () =>
+        cellArr.forEach((c) => (c.style.willChange = "transform, opacity")),
+      onLeaveBack: () => cellArr.forEach((c) => (c.style.willChange = "auto")),
     });
-
-    // Hold — most of the timeline sits here before fade-out
-    tl.to({}, { duration: 0.35 });
-
-    // Cells disperse upward and fade out
-    cellArr.forEach((cell, i) => {
-      tl.to(
-        cell,
-        { y: -65 * speeds[i], opacity: 0, duration: 0.3, ease: "power2.in" },
-        "<0.03",
-      );
-    });
-
-    tl.to(scene, { opacity: 0, duration: 0.08, ease: "none" });
 
     return () => {
-      tl.scrollTrigger?.kill();
+      st.kill();
       tl.kill();
     };
   }, []);

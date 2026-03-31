@@ -33,8 +33,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    gsap.ticker.lagSmoothing(0);
-
     // Progress bar: update on native scroll
     const onScroll = () => {
       if (progressRef.current) {
@@ -59,12 +57,10 @@ export default function App() {
 
     // Recalculate after images/fonts have loaded — critical when mounting
     // after login gate since large images shift page height significantly
-    const refresh1 = setTimeout(() => ScrollTrigger.refresh(), 300);
     const refresh2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
     window.addEventListener("load", () => ScrollTrigger.refresh());
 
     return () => {
-      clearTimeout(refresh1);
       clearTimeout(refresh2);
       ScrollTrigger.getAll().forEach((t) => t.kill());
       window.removeEventListener("scroll", onScroll);

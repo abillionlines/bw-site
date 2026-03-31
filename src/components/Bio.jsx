@@ -2,8 +2,6 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function Bio() {
   const bioRef = useRef(null);
 
@@ -14,11 +12,10 @@ export default function Bio() {
     const revealStack = bio.closest(".reveal-stack");
     const watchEl = revealStack?.querySelector(".reveal-stack__watch");
 
-    // Bio starts scaled down — sitting "behind" the Watch
+    // Bio starts hidden — sitting "behind" the Watch
     gsap.set(bio, {
-      scale: 0.72,
       opacity: 0,
-      transformOrigin: "center center",
+      y: 40,
     });
 
     const tl = gsap.timeline({
@@ -30,31 +27,28 @@ export default function Bio() {
       },
     });
 
-    // Watch explodes outward and falls apart
+    // Watch fades out
     if (watchEl) {
       tl.to(
         watchEl,
         {
-          scale: 1.25,
           opacity: 0,
-          filter: "blur(16px)",
-          transformOrigin: "center center",
           duration: 0.5,
-          ease: "power2.in",
+          ease: "none",
         },
         0,
       );
       tl.set(watchEl, { visibility: "hidden", pointerEvents: "none" }, 0.5);
     }
 
-    // Bio zooms in fully visible
+    // Bio fades and slides in
     tl.to(
       bio,
       {
-        scale: 1,
         opacity: 1,
+        y: 0,
         duration: 0.6,
-        ease: "power3.out",
+        ease: "none",
       },
       0.1,
     );
@@ -66,7 +60,7 @@ export default function Bio() {
         trigger: revealStack,
         start: "top+=80% top",
         end: "bottom top",
-        scrub: 1.5,
+        scrub: 1,
       },
     });
     readingTl.to(bioInner, {

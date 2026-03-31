@@ -3,8 +3,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import stillwater6 from "../assets/stillwater-assets/stillwater6.webp";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const videos = [
   { id: "3J7mOZnI22U", title: "Video 1" },
   { id: "ul2oGP2Pzuc", title: "Video 2" },

@@ -10,8 +10,6 @@ import track1 from "../assets/stillwater-assets/Brian Wilkinson - No One Told Yo
 import track2 from "../assets/stillwater-assets/Brian WIlkinson - Not Yet.mp3";
 import track3 from "../assets/stillwater-assets/Brian Wilkinson - I Think I Kinda Know Myself.mp3";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const tracks = [
   { title: "No One Told You", src: track1 },
   { title: "Not Yet", src: track2 },
@@ -53,7 +51,7 @@ export default function Hear() {
           trigger: section,
           start: "top bottom",
           end: "bottom top",
-          scrub: 1.5,
+          scrub: 1,
         },
       },
     );
@@ -83,7 +81,7 @@ export default function Hear() {
           trigger: pinSection,
           start: "top 80%",
           end: "bottom 20%",
-          scrub: 1.5,
+          scrub: 1,
         },
       });
       fadeTl
@@ -93,29 +91,48 @@ export default function Hear() {
     }
 
     // Continuous looping wave — each char bobs up/down with a phase offset
+    const waveTweens = [];
     chars.forEach((char, i) => {
-      gsap.to(char, {
-        y: -14,
-        skewX: 4,
-        duration: 1.8,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        delay: i * 0.1,
-      });
+      waveTweens.push(
+        gsap.to(char, {
+          y: -14,
+          skewX: 4,
+          duration: 1.8,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+          delay: i * 0.1,
+          paused: true,
+        }),
+      );
       // Subtle opacity shimmer to mimic light on water
-      gsap.to(char, {
-        opacity: 0.55,
-        duration: 2.2,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        delay: i * 0.12 + 0.4,
-      });
+      waveTweens.push(
+        gsap.to(char, {
+          opacity: 0.55,
+          duration: 2.2,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+          delay: i * 0.12 + 0.4,
+          paused: true,
+        }),
+      );
+    });
+
+    // Only run wave tweens while section is visible
+    const waveST = ScrollTrigger.create({
+      trigger: pinSection ?? sectionRef.current,
+      start: "top bottom",
+      end: "bottom top",
+      onEnter: () => waveTweens.forEach((t) => t.play()),
+      onLeave: () => waveTweens.forEach((t) => t.pause()),
+      onEnterBack: () => waveTweens.forEach((t) => t.play()),
+      onLeaveBack: () => waveTweens.forEach((t) => t.pause()),
     });
 
     return () => {
-      gsap.killTweensOf(chars);
+      waveTweens.forEach((t) => t.kill());
+      waveST.kill();
       fadeTl?.scrollTrigger?.kill();
       fadeTl?.kill();
     };
@@ -171,15 +188,7 @@ export default function Hear() {
   };
 
   return (
-    <motion.section
-      ref={sectionRef}
-      id="hear"
-      className="hear"
-      initial={{ opacity: 0, x: -80 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
+    <section ref={sectionRef} id="hear" className="hear">
       {/* Parallax background */}
       <div className="hear__bg-wrap">
         <div
@@ -261,6 +270,6 @@ export default function Hear() {
           </div>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

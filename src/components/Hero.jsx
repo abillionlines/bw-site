@@ -8,10 +8,10 @@ import {
   FaFacebook,
 } from "react-icons/fa";
 
-import img1 from "../assets/hero-images/BWStillWater.jpg";
-import img2 from "../assets/hero-images/Still WAter Portrait 4.1.jpg";
-import img3 from "../assets/hero-images/StillWater Post 2.jpg";
-import img4 from "../assets/hero-images/Stillwater portrait 6.jpg";
+import img1 from "../assets/hero-images/BWStillWater.webp";
+import img2 from "../assets/hero-images/Still WAter Portrait 4.1.webp";
+import img3 from "../assets/hero-images/StillWater Post 2.webp";
+import img4 from "../assets/hero-images/Stillwater portrait 6.webp";
 
 const images = [img1, img2, img3, img4];
 
