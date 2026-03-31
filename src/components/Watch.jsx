@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import stillwater6 from "../assets/stillwater-assets/stillwater6.webp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,11 +18,29 @@ export default function Watch() {
   const rowRef = useRef(null);
   const sectionRef = useRef(null);
   const featuredRef = useRef(null);
+  const bgRef = useRef(null);
   const [activeId, setActiveId] = useState(null);
   const [featuredIdx] = useState(() =>
     Math.floor(Math.random() * videos.length),
   );
   const featured = videos[featuredIdx];
+
+  // Parallax background
+  useEffect(() => {
+    const bg = bgRef.current;
+    const section = sectionRef.current;
+    if (!bg || !section) return;
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+      },
+    });
+    tl.fromTo(bg, { y: "15%" }, { y: "-15%", ease: "none" });
+    return () => tl.scrollTrigger?.kill();
+  }, []);
 
   // Populate-on-scroll animation
   useEffect(() => {
@@ -39,7 +58,7 @@ export default function Watch() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
-        start: "top 10%",
+        start: "top 80%",
         once: true,
       },
     });
@@ -121,10 +140,21 @@ export default function Watch() {
       isDragging = false;
       dragDistance = 0;
     };
+
+    const onWheel = (e) => {
+      // Horizontal trackpad scroll
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        xPos -= e.deltaX;
+        velocity = -e.deltaX * 0.3;
+      }
+    };
+
     row.addEventListener("pointerdown", onPointerDown);
     row.addEventListener("pointermove", onPointerMove);
     row.addEventListener("pointerup", onPointerUp);
     row.addEventListener("pointercancel", onPointerUp);
+    row.addEventListener("wheel", onWheel, { passive: false });
     row.style.cursor = "grab";
 
     const tick = () => {
@@ -138,30 +168,35 @@ export default function Watch() {
     };
     gsap.ticker.add(tick);
 
+    // Expose shift function via ref so arrow buttons can nudge xPos directly
+    row._shiftRow = (dir) => {
+      const cardWidth =
+        track.querySelector(".watch__video-card")?.offsetWidth ?? 300;
+      velocity = dir * -(cardWidth + 24) * 0.3;
+      xPos += dir * -(cardWidth + 24);
+    };
+
     return () => {
       gsap.ticker.remove(tick);
       row.removeEventListener("pointerdown", onPointerDown);
       row.removeEventListener("pointermove", onPointerMove);
       row.removeEventListener("pointerup", onPointerUp);
       row.removeEventListener("pointercancel", onPointerUp);
+      row.removeEventListener("wheel", onWheel);
       row.style.cursor = "";
     };
   }, []);
 
   const shiftRow = (dir) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cardWidth =
-      track.querySelector(".watch__video-card")?.offsetWidth ?? 300;
-    gsap.to(track, {
-      x: `+=${dir * -(cardWidth + 24)}`,
-      duration: 0.5,
-      ease: "power2.out",
-    });
+    if (rowRef.current?._shiftRow) rowRef.current._shiftRow(dir);
   };
 
   return (
     <section id="watch" className="watch" ref={sectionRef}>
+      {/* Parallax background */}
+      <div className="watch__bg" ref={bgRef}>
+        <img src={stillwater6} alt="" />
+      </div>
       {/* Fullscreen video modal */}
       {activeId && (
         <div className="watch__modal" onClick={() => setActiveId(null)}>

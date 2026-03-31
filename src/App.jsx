@@ -57,13 +57,15 @@ export default function App() {
       });
     });
 
-    // Ensure ScrollTrigger recalculates all positions after full paint
-    // (needed in production where styles load differently than dev)
-    ScrollTrigger.refresh();
-    const refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 500);
+    // Recalculate after images/fonts have loaded — critical when mounting
+    // after login gate since large images shift page height significantly
+    const refresh1 = setTimeout(() => ScrollTrigger.refresh(), 300);
+    const refresh2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
+    window.addEventListener("load", () => ScrollTrigger.refresh());
 
     return () => {
-      clearTimeout(refreshTimer);
+      clearTimeout(refresh1);
+      clearTimeout(refresh2);
       ScrollTrigger.getAll().forEach((t) => t.kill());
       window.removeEventListener("scroll", onScroll);
     };

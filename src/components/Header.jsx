@@ -21,6 +21,29 @@ export default function Header({ onLoginClick }) {
   }, []);
 
   const scrollTo = (id) => {
+    if (id === "bio") {
+      const stack = document.querySelector(".reveal-stack");
+      if (stack) {
+        const target = stack.offsetTop + stack.offsetHeight * 0.65;
+        window.scrollTo({ top: target, behavior: "smooth" });
+        return;
+      }
+    }
+    if (id === "watch") {
+      const stack = document.querySelector(".reveal-stack");
+      if (stack) {
+        window.scrollTo({ top: stack.offsetTop, behavior: "smooth" });
+        return;
+      }
+    }
+    if (id === "hear") {
+      const el = document.getElementById("hear");
+      if (el) {
+        const section = el.closest(".pin-section") ?? el;
+        window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
+        return;
+      }
+    }
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 

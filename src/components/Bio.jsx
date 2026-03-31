@@ -14,14 +14,18 @@ export default function Bio() {
     const revealStack = bio.closest(".reveal-stack");
     const watchEl = revealStack?.querySelector(".reveal-stack__watch");
 
-    // Bio starts scaled down and shifted down — sitting "behind" the Watch
-    gsap.set(bio, { scale: 0.72, opacity: 0, transformOrigin: "center top" });
+    // Bio starts scaled down — sitting "behind" the Watch
+    gsap.set(bio, {
+      scale: 0.72,
+      opacity: 0,
+      transformOrigin: "center center",
+    });
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: revealStack,
-        start: "top+=50% top",
-        end: "bottom top",
+        start: "top+=30% top", // reveal starts at 30% into the stack
+        end: "top+=80% top", // reveal fully done by 80% — before pan begins
         scrub: 1.0,
       },
     });
@@ -40,11 +44,10 @@ export default function Bio() {
         },
         0,
       );
-      // Once faded, remove it from interaction/layout entirely
       tl.set(watchEl, { visibility: "hidden", pointerEvents: "none" }, 0.5);
     }
 
-    // Bio zooms forward from behind and slides up to center
+    // Bio zooms in fully visible
     tl.to(
       bio,
       {
@@ -56,12 +59,12 @@ export default function Bio() {
       0.1,
     );
 
-    // After reveal, scroll-pan the bio content through the reading phase
+    // Pan starts AFTER reveal is done — from 80% to end of stack
     const bioInner = bio;
     const readingTl = gsap.timeline({
       scrollTrigger: {
         trigger: revealStack,
-        start: "top+=150% top",
+        start: "top+=80% top",
         end: "bottom top",
         scrub: 1.5,
       },
@@ -71,7 +74,12 @@ export default function Bio() {
       ease: "none",
     });
 
-    return () => tl.scrollTrigger?.kill();
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+      readingTl.scrollTrigger?.kill();
+      readingTl.kill();
+    };
   }, []);
 
   return (

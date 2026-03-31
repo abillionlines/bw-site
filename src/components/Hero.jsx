@@ -56,9 +56,9 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.35, ease: "easeOut" }}
         >
-          <span className="hero__release">Stillwater Out Now</span>
+          <span className="hero__release"><em>Still Water</em>&nbsp;&nbsp;&nbsp;<span style={{color: "#888"}}>Out Now</span></span>
           <button className="hero__listen-btn" onClick={scrollToHear}>
-            Listen Now
+            Listen
           </button>
         </motion.div>
         <motion.div
