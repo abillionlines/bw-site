@@ -57,7 +57,13 @@ export default function App() {
       });
     });
 
+    // Ensure ScrollTrigger recalculates all positions after full paint
+    // (needed in production where styles load differently than dev)
+    ScrollTrigger.refresh();
+    const refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 500);
+
     return () => {
+      clearTimeout(refreshTimer);
       ScrollTrigger.getAll().forEach((t) => t.kill());
       window.removeEventListener("scroll", onScroll);
     };
