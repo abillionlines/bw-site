@@ -1,16 +1,26 @@
-# React + Vite
+# Brian Wilkinson — Official Site
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal artist website for Brian Wilkinson, built around the _Still Water_ album release.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React + Vite** — component-based UI with fast dev server and optimized production builds
+- **GSAP + ScrollTrigger** — all scroll-driven animations and section transitions
+- **Framer Motion** — curtain intro and modal transitions
+- **Supabase Auth** — password-protected site gate for pre-release access control
+- **Google Fonts** — Michroma (site-wide), Love Light (Still Water titles)
 
-## React Compiler
+## Sections
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Section              | Description                                                                  |
+| -------------------- | ---------------------------------------------------------------------------- |
+| **Hero**             | Full-screen image carousel intro                                             |
+| **Transition Scene** | GSAP-animated photo grid overlay between Hero and Hear                       |
+| **Hear**             | Music player with animated "Still Water" title and scroll-driven wave effect |
+| **Watch**            | Featured video + scrollable thumbnail row with fullscreen modal              |
+| **Bio**              | Scroll-reveal biography with Watch→Bio zoom transition                       |
+| **Contact**          | Contact section with pinned footer                                           |
 
-## Expanding the ESLint configuration
+## Pre-Release Gate
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The site is fully hidden behind a login screen until the release date. Only authenticated Supabase users can access the site. To remove the gate on launch, delete the `if (!session)` block in `src/App.jsx`.
