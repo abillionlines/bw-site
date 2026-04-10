@@ -138,8 +138,7 @@ export default function Watch() {
       if (dragDistance < 5) {
         const el = document.elementFromPoint(e.clientX, e.clientY);
         const card = el?.closest("[data-video-id]");
-        if (card)
-          setActiveId(`${card.dataset.videoId}-${card.dataset.videoIdx}`);
+        if (card) setActiveId(card.dataset.videoId);
       }
       isDragging = false;
       dragDistance = 0;
@@ -215,7 +214,7 @@ export default function Watch() {
               ✕
             </button>
             <iframe
-              src={`https://www.youtube.com/embed/${activeId.split("-")[0]}?autoplay=1&rel=0`}
+              src={`https://www.youtube.com/embed/${activeId}?autoplay=1&rel=0`}
               title="Video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -228,7 +227,7 @@ export default function Watch() {
       <div className="watch__featured" ref={featuredRef}>
         <div
           className="watch__featured-thumb"
-          onClick={() => setActiveId(`${featured.id}-featured`)}
+          onClick={() => setActiveId(featured.id)}
         >
           <img
             src={`https://i.ytimg.com/vi/${featured.id}/maxresdefault.jpg`}
