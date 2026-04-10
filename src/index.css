@@ -10,15 +10,18 @@
 }
 
 :root {
-  --navy: #1a3263;
-  --steel: #547792;
-  --gold: #fab95b;
-  --cream: #e8e2db;
+  --navy: #374f4e;
+  --steel: #aa8552;
+  --gold: #d1801e;
+  --cream: #daccc4;
+  --peach: #edbd95;
   --font: "Michroma", sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -26,6 +29,7 @@ body {
   background-color: var(--navy);
   color: var(--cream);
   overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 button {

@@ -12,123 +12,125 @@ export default function Bio() {
     const revealStack = bio.closest(".reveal-stack");
     const watchEl = revealStack?.querySelector(".reveal-stack__watch");
 
-    // Bio starts hidden — sitting "behind" the Watch
-    gsap.set(bio, {
-      opacity: 0,
-      y: 40,
-    });
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: revealStack,
-        start: "top+=30% top", // reveal starts at 30% into the stack
-        end: "top+=80% top", // reveal fully done by 80% — before pan begins
-        scrub: 1.0,
-      },
-    });
-
-    // Watch fades out
-    if (watchEl) {
-      tl.to(
-        watchEl,
-        {
-          opacity: 0,
-          duration: 0.5,
-          ease: "none",
+    if (isMobile) {
+      // On mobile, bio starts hidden and fades in on scroll
+      gsap.set(bio, { opacity: 0, y: 40 });
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: bio,
+          start: "top 60%",
+          end: "top 5%",
+          scrub: 1,
         },
-        0,
-      );
-      tl.set(watchEl, { visibility: "hidden", pointerEvents: "none" }, 0.5);
+      });
+      tl.to(bio, { opacity: 1, y: 0, duration: 1, ease: "none" });
+      return () => {
+        tl.scrollTrigger?.kill();
+        tl.kill();
+      };
     }
 
-    // Bio fades and slides in
-    tl.to(
-      bio,
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "none",
-      },
-      0.1,
-    );
+    // Desktop: reveal-stack is pinned for 350vh of scroll travel.
+    // Both watch & bio are absolutely positioned (overlapping).
+    // Timeline phases: settle → cross-fade → pan bio text.
+    gsap.set(bio, { opacity: 0, y: 0 });
 
-    // Pan starts AFTER reveal is done — from 80% to end of stack
-    const bioInner = bio;
-    const readingTl = gsap.timeline({
+    const masterTl = gsap.timeline({
       scrollTrigger: {
         trigger: revealStack,
-        start: "top+=80% top",
-        end: "bottom top",
-        scrub: 1,
+        start: "top top",
+        end: "+=1200vh",
+        pin: true,
+        pinSpacing: true,
+        scrub: 2.5,
       },
     });
-    readingTl.to(bioInner, {
-      y: () => -(bioInner.scrollHeight - window.innerHeight + 80),
-      ease: "none",
-    });
+
+    // Phase 0 (0 – 0.08): brief settle after pin engages (no animation)
+
+    // Phase 1 (0.25 – 0.55): slow cross-fade watch → bio
+    if (watchEl) {
+      masterTl.to(
+        watchEl,
+        { opacity: 0, duration: 0.25, ease: "power1.inOut" },
+        0.25,
+      );
+      masterTl.set(
+        watchEl,
+        { visibility: "hidden", pointerEvents: "none" },
+        0.5,
+      );
+    }
+    masterTl.to(bio, { opacity: 1, duration: 0.28, ease: "power1.inOut" }, 0.3);
+
+    // Phase 2 (0.60 – 1.0): pan bio content up for reading
+    // Use fromTo with explicit y:0 start to avoid any baseline offset issues
+    // Clamp so panTarget is never positive — if content fits in the viewport,
+    // no panning is needed (a positive value would scroll the wrong direction).
+    const panTarget = Math.min(
+      0,
+      -(bio.scrollHeight - window.innerHeight + 80),
+    );
+    masterTl.fromTo(
+      bio,
+      { y: 0 },
+      {
+        y: panTarget,
+        duration: 0.4,
+        ease: "none",
+      },
+      0.6,
+    );
 
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
-      readingTl.scrollTrigger?.kill();
-      readingTl.kill();
+      masterTl.scrollTrigger?.kill();
+      masterTl.kill();
     };
   }, []);
 
   return (
     <section id="bio" className="bio" ref={bioRef}>
       <h2 className="bio__title">Bio</h2>
-      <blockquote className="bio__quote">
-        "I've always believed you don't have to be cool to be cool. True
-        coolness comes from authenticity—and whatever that looks like for you is
-        what matters. My journey has been about reaching a place inside myself
-        where I could finally receive what the world has been offering all
-        along."
-      </blockquote>
       <div className="bio__text">
         <p>
-          Brian's musical story began before birth: while pregnant, his mother
-          played and taught the great guitar songs of the '60s and '70s, shaping
-          his ears from the womb. Born in Los Angeles and raised in Boise,
-          Idaho, he picked up the guitar at 12—initially to impress girls—and
-          discovered a natural talent for playing and songwriting. By 16, he
-          released his first EP; by 17, his debut full-length album.
+          Born in Los Angeles, raised in Boise, Idaho, and growing up in a
+          musical family, Brian inherited a love for the great songs of the 60s,
+          70s and 80s before he could even speak. He picked up the instrument at
+          12, started writing not long after, and had his first EP out by 16.
+          Garage jams, DIY recordings, and a restless need to chase something
+          real carried him from Idaho to Phoenix, Hollywood, Seattle, Miami and
+          back again.
         </p>
         <p>
-          His early years were filled with garage jams, DIY studios, and a
-          search for artistic and spiritual freedom. At one point, he won a
-          Myspace contest for New Line Cinema's <em>Just Friends</em>, landing a
-          lucrative spot in their ad campaign with his take on "Jamie
-          Smiles"—the biggest music paycheck Boise had ever seen.
+          He's logged close to 3,000 nights on stage—mostly just him and a
+          guitar—across bars, restaurants, listening rooms, and everywhere in
+          between. Along the way he's released multiple albums, built a catalog
+          of nearly 100 songs, and landed sync placements on Fox, Hulu, Netflix,
+          and BYUtv.
         </p>
         <p>
-          After two more albums, Brian moved to Phoenix at 22 for a broader view
-          of the world, then studied Vocal Performance and Audio Engineering at
-          Musicians Institute in Hollywood. Running low on funds, he headed to
-          Seattle, where confusion about his path led to a pivotal moment:
-          releasing his fourth project while working at the Apple Store, then
-          recommitting fully to music back in Phoenix.
+          Brian calls what he does "New Americana"—rooted in tradition but wide
+          open enough for modernity. Unity, honesty, and making room for folks
+          who don't quite fit the mold. That's the whole point.
         </p>
         <p>
-          For years, money wasn't the goal—he didn't earn from music until 15
-          years in. In his early thirties, he hit the road hard, performing
-          nearly 3,000 nights, mostly solo acoustic, across Phoenix, Miami, and
-          beyond. Still writing and recording relentlessly, he reached a turning
-          point near 40: refusing to release anything that didn't stand
-          shoulder-to-shoulder with the music he loved. He sought mentors,
-          refined his craft, and produced a polished 6-song EP born from two
-          years of intensive work.
+          Still Water is a few gems among a bigger collection of songs recorded
+          by Brian over the past couple of years. He plans to release more of
+          these in the future. He sees Still Water as a signal; it was the
+          biggest reach back to the acoustic guitar since his youth.
+        </p>
+        <p className="bio__quote-inline">
+          "It felt like my young adulthood, until a few years ago, I was always
+          reaching for the electric…but something recently shifted and the
+          acoustic got me back."
         </p>
         <p>
-          Now confident in world-class production, Brian licenses his nearly
-          100-song catalog for film and TV (placements on Fox, Hulu, Netflix,
-          BYUtv). He pushes "New Americana"—evolving the genre to embrace modern
-          movements while honoring its core: unity, standing up when needed,
-          stepping back for others, and creating space where everyone feels
-          understood and at peace with their differences.
+          He was joined by some top industry talent for the highlighted tracks.
+          Co-Writer Kyle Merkley (Toronto), Vocalist Lava Hong (LA), Trumpeter
+          Melissa Neff (Phoenix), and Vocalist Holly Payne (Phoenix).
         </p>
-        <p>"It's a game I'll keep playing until I retire."</p>
       </div>
     </section>
   );

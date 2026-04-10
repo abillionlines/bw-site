@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import stillwater6 from "../assets/stillwater-assets/stillwater6.webp";
+import stillwater7 from "../assets/stillwater-assets/stillwater7.webp";
 
 const videos = [
-  { id: "3J7mOZnI22U", title: "Video 1" },
-  { id: "ul2oGP2Pzuc", title: "Video 2" },
-  { id: "3PwGCcXX4fg", title: "Video 3" },
+  { id: "isamiCq-5yc", title: "Not Yet" },
+  { id: "8S-9pohkXwg", title: "I Think I Kinda Know Myself" },
+  { id: "vgQZBNZHpdE", title: "No One Told You" },
 ];
 
 const looped = [...videos, ...videos, ...videos, ...videos];
@@ -18,16 +18,18 @@ export default function Watch() {
   const featuredRef = useRef(null);
   const bgRef = useRef(null);
   const [activeId, setActiveId] = useState(null);
-  const [featuredIdx] = useState(() =>
-    Math.floor(Math.random() * videos.length),
-  );
-  const featured = videos[featuredIdx];
+  const featured = videos[0];
 
   // Parallax background
   useEffect(() => {
     const bg = bgRef.current;
     const section = sectionRef.current;
     if (!bg || !section) return;
+
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    // Skip parallax on desktop inside the pinned reveal-stack to avoid jank
+    if (!isMobile && section.closest(".reveal-stack")) return;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -53,11 +55,15 @@ export default function Watch() {
     gsap.set(cards, { opacity: 0, y: 40, scale: 0.85 });
     gsap.set(arrows, { opacity: 0, x: (i) => (i === 0 ? -20 : 20) });
 
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: section,
-        start: "top 80%",
-        once: true,
+        trigger: isMobile
+          ? section
+          : section.closest(".reveal-stack") || section,
+        start: isMobile ? "top 85%" : "top 20%",
+        toggleActions: "play none none reverse",
       },
     });
 
@@ -66,7 +72,7 @@ export default function Watch() {
       opacity: 1,
       y: 0,
       scale: 1,
-      duration: 0.9,
+      duration: isMobile ? 0.9 : 3.2,
       ease: "power3.out",
     })
       // Cards stagger in from below
@@ -76,11 +82,11 @@ export default function Watch() {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: 0.5,
+          duration: isMobile ? 0.5 : 1.9,
           ease: "power2.out",
-          stagger: 0.04,
+          stagger: isMobile ? 0.04 : 0.1,
         },
-        "-=0.4",
+        isMobile ? "-=0.4" : "-=1.3",
       )
       // Arrows fade in
       .to(
@@ -88,11 +94,11 @@ export default function Watch() {
         {
           opacity: 1,
           x: 0,
-          duration: 0.4,
+          duration: isMobile ? 0.4 : 1.3,
           ease: "power2.out",
           stagger: 0.1,
         },
-        "-=0.3",
+        isMobile ? "-=0.3" : "-=0.9",
       );
 
     return () => tl.scrollTrigger?.kill();
@@ -193,7 +199,7 @@ export default function Watch() {
     <section id="watch" className="watch" ref={sectionRef}>
       {/* Parallax background */}
       <div className="watch__bg" ref={bgRef}>
-        <img src={stillwater6} alt="" />
+        <img src={stillwater7} alt="" />
       </div>
       {/* Fullscreen video modal */}
       {activeId && (
@@ -229,6 +235,7 @@ export default function Watch() {
             alt={featured.title}
           />
           <div className="watch__featured-play">&#9654;</div>
+          <span className="watch__thumb-title">{featured.title}</span>
         </div>
       </div>
 
@@ -254,6 +261,7 @@ export default function Watch() {
                     src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
                     alt={v.title}
                   />
+                  <span className="watch__thumb-title">{v.title}</span>
                 </div>
               </div>
             ))}

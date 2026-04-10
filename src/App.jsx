@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 import "./App.css";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -34,29 +35,40 @@ export default function App() {
 
   useEffect(() => {
     // Progress bar: update on native scroll
+    // Progress bar — throttled via rAF to avoid layout thrashing
+    let progressTick = false;
     const onScroll = () => {
-      if (progressRef.current) {
-        const progress =
-          window.scrollY / (document.body.scrollHeight - window.innerHeight);
-        progressRef.current.style.transform = `scaleX(${progress})`;
-      }
+      if (progressTick) return;
+      progressTick = true;
+      requestAnimationFrame(() => {
+        if (progressRef.current) {
+          const progress =
+            window.scrollY / (document.body.scrollHeight - window.innerHeight);
+          progressRef.current.style.transform = `scaleX(${progress})`;
+        }
+        progressTick = false;
+      });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
     // Pin each section
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
     const sections = gsap.utils.toArray(".pin-section");
     sections.forEach((section) => {
+      if (isMobile && section.classList.contains("pin-section--hear")) return;
+      if (section.closest(".reveal-stack")) return;
+      if (section.classList.contains("pin-section--contact")) return;
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: "+=700",
+        end: "+=600",
         pin: true,
         pinSpacing: true,
       });
     });
 
     // Recalculate after images/fonts have loaded — critical when mounting
-    // after login gate since large images shift page height significantly
+    // after login gate since large images shifts page height significantly
     const refresh2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
     window.addEventListener("load", () => ScrollTrigger.refresh());
 
@@ -70,8 +82,12 @@ export default function App() {
   // Still checking auth state
   if (session === undefined) return null;
 
-  // Not logged in — show full-screen gate
-  if (!session) return <SiteGate onLogin={() => {}} />;
+  // Gate removal: April 10, 2026 at 6:00 AM ET (UTC-4)
+  const GATE_EXPIRES = new Date("2026-04-10T10:00:00Z"); // 6 AM ET = 10:00 UTC
+  const gateOpen = Date.now() >= GATE_EXPIRES.getTime();
+
+  // Not logged in — show full-screen gate (unless timer has expired)
+  if (!session && !gateOpen) return <SiteGate onLogin={() => {}} />;
 
   return (
     <>
@@ -86,16 +102,14 @@ export default function App() {
         animate={{ y: "-100%" }}
         transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1], delay: 0.2 }}
       />
-      <Header onLoginClick={() => setShowLogin(true)} />
-      <AnimatePresence>
-        {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
-      </AnimatePresence>
+      <Header />
       <main>
         <Hero />
+        <div className="hero-gap" />
         <div className="ts-spacer">
           <TransitionScene index={0} />
         </div>
-        <div className="pin-section">
+        <div className="pin-section pin-section--hear">
           <Hear />
         </div>
         <div className="reveal-stack">

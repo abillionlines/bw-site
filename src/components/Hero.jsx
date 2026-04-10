@@ -11,9 +11,29 @@ import {
 import img1 from "../assets/hero-images/BWStillWater.webp";
 import img2 from "../assets/hero-images/Still WAter Portrait 4.1.webp";
 import img3 from "../assets/hero-images/StillWater Post 2.webp";
-import img4 from "../assets/hero-images/Stillwater portrait 6.webp";
+import img4 from "../assets/hero-images/Still Water Portrait 21.webp";
+import img5 from "../assets/hero-images/Still Water Portrait 16.webp";
+import img6 from "../assets/hero-images/Still Water Portrait 18.webp";
+import img7 from "../assets/hero-images/Still Water Cacti Sunset.webp";
+import img8 from "../assets/hero-images/Still Water Dock Silhouette.webp";
 
-const images = [img1, img2, img3, img4];
+const allImages = [img1, img2, img3, img4, img5, img6, img7, img8];
+const mobileImages = [img2, img3, img4, img5, img6, img7, img8];
+
+// Shuffle array using Fisher-Yates
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const isMobile =
+  typeof window !== "undefined" &&
+  window.matchMedia("(max-width: 768px)").matches;
+const images = shuffle(isMobile ? mobileImages : allImages);
 
 export default function Hero() {
   const [current, setCurrent] = useState(0);
@@ -114,7 +134,7 @@ export default function Hero() {
                 hidden: { opacity: 0, y: 12 },
                 visible: { opacity: 1, y: 0 },
               }}
-              whileHover={{ scale: 1.2, color: "#FAB95B" }}
+              whileHover={{ scale: 1.2, color: "#D1801E" }}
               transition={{ duration: 0.2 }}
             >
               {icon}

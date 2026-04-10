@@ -4,15 +4,15 @@ import { FaPlay, FaPause, FaStepForward, FaStepBackward } from "react-icons/fa";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import cover from "../assets/stillwater-assets/8D240F9F-4C45-4FF1-ABAF-C3CD52F76F8D_1_201_a.jpeg";
-import bgImage from "../assets/stillwater-assets/stillwateroriginal.png";
+import cover from "../assets/hero-images/Still Water Portrait 17.webp";
+import bgVideo from "../assets/stillwater-assets/lakewater20.mp4";
 import track1 from "../assets/stillwater-assets/Brian Wilkinson - No One Told You.mp3";
 import track2 from "../assets/stillwater-assets/Brian WIlkinson - Not Yet.mp3";
 import track3 from "../assets/stillwater-assets/Brian Wilkinson - I Think I Kinda Know Myself.mp3";
 
 const tracks = [
-  { title: "No One Told You", src: track1 },
   { title: "Not Yet", src: track2 },
+  { title: "No One Told You", src: track1 },
   { title: "I Think I Kinda Know Myself", src: track3 },
 ];
 
@@ -34,33 +34,6 @@ export default function Hear() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    const bg = bgRef.current;
-    if (!section || !bg) return;
-
-    // Pan from top to bottom the entire time the section is visible (entering → leaving)
-    const st = gsap.fromTo(
-      bg,
-      { y: "0%" },
-      {
-        y: "-30%",
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-        },
-      },
-    );
-
-    return () => {
-      st.scrollTrigger?.kill();
-      st.kill();
-    };
-  }, []);
 
   // Flowing water wave effect on title characters
   useEffect(() => {
@@ -189,14 +162,19 @@ export default function Hear() {
 
   return (
     <section ref={sectionRef} id="hear" className="hear">
-      {/* Parallax background */}
-      <div className="hear__bg-wrap">
-        <div
-          ref={bgRef}
-          className="hear__bg"
-          style={{ backgroundImage: `url(${bgImage})` }}
-        />
-      </div>
+      {/* Video background */}
+      <video
+        ref={bgRef}
+        className="hear__bg-video"
+        src={bgVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        onLoadedMetadata={(e) => {
+          e.target.playbackRate = 0.7;
+        }}
+      />
       {/* Flowing water title */}
       <h2 ref={titleRef} className="hear__title">
         {"Still Water".split("").map((char, i) => (
@@ -222,7 +200,7 @@ export default function Hear() {
               onClick={() => playTrack(i)}
               animate={
                 i === activeIdx
-                  ? { boxShadow: "0 0 0 1px #FAB95B" }
+                  ? { boxShadow: "0 0 0 1px #D1801E" }
                   : { boxShadow: "0 0 0 0px transparent" }
               }
               transition={{ duration: 0.3 }}

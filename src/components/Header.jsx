@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
-export default function Header({ onLoginClick }) {
+export default function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let timeout;
@@ -21,10 +22,26 @@ export default function Header({ onLoginClick }) {
   }, []);
 
   const scrollTo = (id) => {
+    setMenuOpen(false);
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+    if (isMobile) {
+      const el = document.getElementById(id);
+      if (el) {
+        const offset = id === "hear" ? -40 : -120;
+        const top = el.getBoundingClientRect().top + window.scrollY + offset;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+      return;
+    }
+
     if (id === "bio") {
       const stack = document.querySelector(".reveal-stack");
       if (stack) {
-        const target = stack.offsetTop + stack.offsetHeight * 0.65;
+        // The pinned reveal-stack is wrapped in a .pin-spacer by GSAP.
+        // Scroll ~55% into the spacer to land on the bio phase of the timeline.
+        const spacer = stack.closest(".pin-spacer") || stack;
+        const target = spacer.offsetTop + spacer.offsetHeight * 0.55;
         window.scrollTo({ top: target, behavior: "smooth" });
         return;
       }
@@ -32,7 +49,9 @@ export default function Header({ onLoginClick }) {
     if (id === "watch") {
       const stack = document.querySelector(".reveal-stack");
       if (stack) {
-        window.scrollTo({ top: stack.offsetTop, behavior: "smooth" });
+        // Scroll to the top of the pin-spacer to land on Watch
+        const spacer = stack.closest(".pin-spacer") || stack;
+        window.scrollTo({ top: spacer.offsetTop, behavior: "smooth" });
         return;
       }
     }
@@ -50,15 +69,21 @@ export default function Header({ onLoginClick }) {
   return (
     <header className={`header ${scrolled ? "scrolled" : "at-top"}`}>
       <div className="header__logo">Brian Wilkinson</div>
-      <nav className="header__nav">
+      <nav className={`header__nav ${menuOpen ? "open" : ""}`}>
         <button onClick={() => scrollTo("hero")}>Home</button>
         <button onClick={() => scrollTo("hear")}>Hear</button>
         <button onClick={() => scrollTo("watch")}>Watch</button>
         <button onClick={() => scrollTo("bio")}>Bio</button>
         <button onClick={() => scrollTo("contact")}>Contact</button>
       </nav>
-      <button className="header__login" onClick={onLoginClick}>
-        Login
+      <button
+        className={`header__hamburger ${menuOpen ? "open" : ""}`}
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-label="Toggle menu"
+      >
+        <span />
+        <span />
+        <span />
       </button>
     </header>
   );

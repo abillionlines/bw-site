@@ -2,108 +2,81 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import img1 from "../assets/transition-images/image.webp";
-import img2 from "../assets/transition-images/StillWater2.webp";
-import img3 from "../assets/transition-images/stillwater portrait.webp";
-import img4 from "../assets/transition-images/CB787A7C-36DD-43DF-BEE5-09401B70F435_1_201_a.webp";
-import img5 from "../assets/transition-images/IMG_0516.webp";
-import img6 from "../assets/transition-images/902EB426-B075-440F-9A7C-DCC8368DFB53_1_105_c.webp";
-import img7 from "../assets/transition-images/EF05DFC2-AC5E-49F2-B830-3194577C7D32_1_105_c.webp";
-import img8 from "../assets/transition-images/74B92F53-F170-411C-9F38-AD28940CFDDA_1_105_c.webp";
-import img9 from "../assets/transition-images/94D025A2-B193-4FA8-B33D-B59E815C457F_1_105_c.webp";
+import coverImg from "../assets/stillwater-assets/stillwateroriginal.webp";
 
-const ALL_IMGS = [img1, img2, img3, img4, img5, img6, img7, img8, img9];
-
-// Each scene gets 6 images, cycling through all 9
-const SCENES = [
-  // Hero → Hear
-  [
-    { img: ALL_IMGS[0], label: "Live at the Loft" },
-    { img: ALL_IMGS[1], label: "Stillwater Sessions" },
-    { img: ALL_IMGS[2], label: "New Americana" },
-    { img: ALL_IMGS[3], label: "Stage Light" },
-    { img: ALL_IMGS[4], label: "Pacific Coast" },
-    { img: ALL_IMGS[5], label: "Desert Sky" },
-  ],
-  // Hear → Watch
-  [
-    { img: ALL_IMGS[6], label: "On the Road" },
-    { img: ALL_IMGS[7], label: "Desert Light" },
-    { img: ALL_IMGS[8], label: "Open Highway" },
-    { img: ALL_IMGS[0], label: "Pacific Coast" },
-    { img: ALL_IMGS[1], label: "Sunrise Set" },
-    { img: ALL_IMGS[2], label: "Night Drive" },
-  ],
-  // Watch → Bio
-  [
-    { img: ALL_IMGS[3], label: "Studio A" },
-    { img: ALL_IMGS[4], label: "The Sessions" },
-    { img: ALL_IMGS[5], label: "Backstage" },
-    { img: ALL_IMGS[6], label: "Sound Check" },
-    { img: ALL_IMGS[7], label: "After Hours" },
-    { img: ALL_IMGS[8], label: "Mixing Board" },
-  ],
-  // Bio → Contact
-  [
-    { img: ALL_IMGS[0], label: "Phoenix Nights" },
-    { img: ALL_IMGS[3], label: "Acoustic Set" },
-    { img: ALL_IMGS[6], label: "Brian Wilkinson" },
-    { img: ALL_IMGS[2], label: "Songwriter" },
-    { img: ALL_IMGS[5], label: "New Americana" },
-    { img: ALL_IMGS[8], label: "Stillwater" },
-  ],
+// Light leak sweep directions per scene
+const SWEEP_DIRS = [
+  { from: "-110%", to: "110%" }, // left → right
+  { from: "110%", to: "-110%" }, // right → left
+  { from: "-110%", to: "110%" }, // left → right
+  { from: "110%", to: "-110%" }, // right → left
 ];
 
 export default function TransitionScene({ index }) {
-  const sceneRef = useRef(null);
   const wrapperRef = useRef(null);
-  const cells = SCENES[index] ?? SCENES[0];
+  const sceneRef = useRef(null);
+  const imgRef = useRef(null);
+  const burnRef = useRef(null);
+  const washRef = useRef(null); // white overlay simulating blown-out exposure
+  const dir = SWEEP_DIRS[index] ?? SWEEP_DIRS[0];
 
   useEffect(() => {
-    const scene = sceneRef.current;
     const wrapper = wrapperRef.current;
-    const gridCells = scene.querySelectorAll(".ts-cell");
+    const scene = sceneRef.current;
+    const img = imgRef.current;
+    const burn = burnRef.current;
+    const wash = washRef.current;
     const spacer = wrapper.closest(".ts-spacer") ?? wrapper;
-    if (!scene || !wrapper) return;
+    if (!scene || !wrapper || !img || !burn || !wash) return;
 
-    const vw = window.innerWidth;
-    const cellArr = Array.from(gridCells);
-
-    // Each cell starts off-screen left or right (alternating, deterministic)
-    const xOrigins = cellArr.map((_, i) =>
-      i % 2 === 0 ? -(vw * 0.55) : vw * 0.55,
-    );
-
+    // Initial state
     gsap.set(scene, { autoAlpha: 0 });
-    cellArr.forEach((cell, i) => {
-      gsap.set(cell, { x: xOrigins[i], autoAlpha: 0 });
-    });
+    gsap.set(img, { scale: 1.08, autoAlpha: 0 });
+    gsap.set(burn, { autoAlpha: 0 });
+    gsap.set(wash, { autoAlpha: 1 }); // starts fully white (blown-out look)
 
     const tl = gsap.timeline({ defaults: { ease: "none" } });
 
-    tl.to(scene, { autoAlpha: 1, duration: 0.1 });
-    tl.to(cellArr, { x: 0, autoAlpha: 1, duration: 0.4, stagger: 0.08 }, "<");
-    tl.to({}, { duration: 0.2 });
-    tl.to(cellArr, {
-      x: (i) => xOrigins[i] * -0.4,
-      autoAlpha: 0,
-      duration: 0.4,
-      stagger: 0.06,
-    });
-    tl.to(scene, { autoAlpha: 0, duration: 0.1 }, "-=0.1");
+    // Scene fades in
+    tl.to(scene, { autoAlpha: 1, duration: 0.05 });
+
+    // Burn glow flares up
+    tl.to(burn, { autoAlpha: 0.8, duration: 0.2, ease: "power1.in" }, 0.05);
+
+    // Image burns in: scale down + fade in image, fade out white wash
+    tl.to(
+      img,
+      { autoAlpha: 1, scale: 1.0, duration: 0.4, ease: "power1.out" },
+      0.1,
+    );
+    tl.to(wash, { autoAlpha: 0, duration: 0.4, ease: "power1.out" }, 0.1);
+
+    // Burn glow fades away as image resolves
+    tl.to(burn, { autoAlpha: 0, duration: 0.3, ease: "power1.out" }, 0.25);
+
+    // Hold the full image
+    tl.to({}, { duration: 0.15 });
+
+    // Exit: burn glow flares back up, image burns out
+    tl.to(burn, { autoAlpha: 0.5, duration: 0.2, ease: "power1.in" });
+    tl.to(
+      img,
+      { autoAlpha: 0.3, scale: 1.04, duration: 0.35, ease: "power1.in" },
+      "-=0.15",
+    );
+    tl.to(
+      wash,
+      { autoAlpha: 0.6, duration: 0.35, ease: "power1.in" },
+      "-=0.35",
+    );
+    tl.to(burn, { autoAlpha: 0, duration: 0.15 });
 
     const st = ScrollTrigger.create({
       trigger: spacer,
-      start: "top 80%",
+      start: "top bottom",
       end: "bottom 20%",
-      scrub: true,
+      scrub: 1, // smooth 1s interpolation instead of raw scrub
       animation: tl,
-      onEnter: () =>
-        cellArr.forEach((c) => (c.style.willChange = "transform, opacity")),
-      onLeave: () => cellArr.forEach((c) => (c.style.willChange = "auto")),
-      onEnterBack: () =>
-        cellArr.forEach((c) => (c.style.willChange = "transform, opacity")),
-      onLeaveBack: () => cellArr.forEach((c) => (c.style.willChange = "auto")),
     });
 
     return () => {
@@ -115,25 +88,16 @@ export default function TransitionScene({ index }) {
   return (
     <div ref={wrapperRef} className="ts-wrapper">
       <div ref={sceneRef} className="ts-scene">
-        <div className="ts-depth-shadow" />
-        <div className="ts-grid">
+        <div className="ts-filmburn">
+          <img
+            ref={imgRef}
+            className="ts-filmburn__img"
+            src={coverImg}
+            alt=""
+          />
+          <div ref={washRef} className="ts-filmburn__wash" />
+          <div ref={burnRef} className="ts-filmburn__leak" />
           <div className="ts-grain" />
-          {cells.map((cell, i) => (
-            <div key={i} className="ts-cell">
-              <img
-                src={cell.img}
-                alt=""
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-              <div className="ts-cell__vignette" />
-              <span className="ts-cell__label">{cell.label}</span>
-            </div>
-          ))}
         </div>
       </div>
     </div>
