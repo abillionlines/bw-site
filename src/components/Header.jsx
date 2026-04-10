@@ -41,7 +41,7 @@ export default function Header() {
         // The pinned reveal-stack is wrapped in a .pin-spacer by GSAP.
         // Scroll ~40% into the spacer to land on the bio phase of the timeline.
         const spacer = stack.closest(".pin-spacer") || stack;
-        const target = spacer.offsetTop + spacer.offsetHeight * 0.40;
+        const target = spacer.offsetTop + spacer.offsetHeight * 0.4;
         window.scrollTo({ top: target, behavior: "smooth" });
         return;
       }
