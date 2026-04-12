@@ -102,7 +102,7 @@ export default function Hero() {
               icon: <FaInstagram />,
             },
             {
-              href: "https://open.spotify.com/artist/6ITDabakKdMXcwDEz9Flej?si=7rCFlyQRTCS5bjE-vs3Kbw",
+              href: "https://open.spotify.com/album/2vSnyXQVHIOg5fSQCfMkyd?si=DgkFtN7WSfOopotfUs9PWg",
               label: "Spotify",
               icon: <FaSpotify />,
             },
