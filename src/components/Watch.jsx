@@ -57,6 +57,16 @@ export default function Watch() {
 
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
+    // On desktop inside the pinned reveal-stack, Bio's scrub controls the
+    // crossfade. Skip the slow time-based animate-in — it conflicts with
+    // the scrub and causes the section to appear frozen mid-transition.
+    if (!isMobile && section.closest(".reveal-stack")) {
+      gsap.set(featured, { opacity: 1, y: 0, scale: 1 });
+      gsap.set(cards, { opacity: 1, y: 0, scale: 1 });
+      gsap.set(arrows, { opacity: 1, x: 0 });
+      return;
+    }
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: isMobile
@@ -119,6 +129,7 @@ export default function Watch() {
     let velocity = 0;
 
     const onPointerDown = (e) => {
+      startTicker(); // restart if idle
       isDragging = true;
       dragDistance = 0;
       velocity = 0;
@@ -150,26 +161,68 @@ export default function Watch() {
         e.preventDefault();
         xPos -= e.deltaX;
         velocity = -e.deltaX * 0.3;
+        startTicker(); // restart if idle
       }
     };
+
+    // The wheel listener must be passive:false to call preventDefault for
+    // horizontal trackpad scroll — but passive:false on any element blocks the
+    // browser compositor for the whole page. Only attach it while the pointer
+    // is over the row so normal vertical page scrolling is never interrupted.
+    const addWheel = () =>
+      row.addEventListener("wheel", onWheel, { passive: false });
+    const removeWheel = () => row.removeEventListener("wheel", onWheel);
 
     row.addEventListener("pointerdown", onPointerDown);
     row.addEventListener("pointermove", onPointerMove);
     row.addEventListener("pointerup", onPointerUp);
     row.addEventListener("pointercancel", onPointerUp);
-    row.addEventListener("wheel", onWheel, { passive: false });
+    row.addEventListener("pointerenter", addWheel);
+    row.addEventListener("pointerleave", removeWheel);
     row.style.cursor = "grab";
 
     const tick = () => {
       if (!isDragging) {
         velocity *= 0.92;
         xPos += velocity;
+        // When velocity has fully decayed, stop the ticker so we're not
+        // calling gsap.set() 60×/sec while nothing is moving.
+        if (Math.abs(velocity) < 0.05) {
+          velocity = 0;
+          stopTicker();
+          return;
+        }
       }
       if (xPos <= -singleSetWidth) xPos += singleSetWidth;
       if (xPos > 0) xPos -= singleSetWidth;
       gsap.set(track, { x: xPos });
     };
-    gsap.ticker.add(tick);
+
+    // Only run the ticker while the section is visible — running it
+    // site-wide forces a style recalculation every frame during all scrolling.
+    let tickerActive = false;
+    const startTicker = () => {
+      if (!tickerActive) {
+        gsap.ticker.add(tick);
+        tickerActive = true;
+      }
+    };
+    const stopTicker = () => {
+      if (tickerActive) {
+        gsap.ticker.remove(tick);
+        tickerActive = false;
+      }
+    };
+
+    const visibilityST = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top bottom",
+      end: "bottom top",
+      onEnter: startTicker,
+      onLeave: stopTicker,
+      onEnterBack: startTicker,
+      onLeaveBack: stopTicker,
+    });
 
     // Expose shift function via ref so arrow buttons can nudge xPos directly
     row._shiftRow = (dir) => {
@@ -180,11 +233,14 @@ export default function Watch() {
     };
 
     return () => {
-      gsap.ticker.remove(tick);
+      stopTicker();
+      visibilityST.kill();
       row.removeEventListener("pointerdown", onPointerDown);
       row.removeEventListener("pointermove", onPointerMove);
       row.removeEventListener("pointerup", onPointerUp);
       row.removeEventListener("pointercancel", onPointerUp);
+      row.removeEventListener("pointerenter", addWheel);
+      row.removeEventListener("pointerleave", removeWheel);
       row.removeEventListener("wheel", onWheel);
       row.style.cursor = "";
     };

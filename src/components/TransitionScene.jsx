@@ -75,7 +75,7 @@ export default function TransitionScene({ index }) {
       trigger: spacer,
       start: "top bottom",
       end: "bottom 20%",
-      scrub: 1, // smooth 1s interpolation instead of raw scrub
+      scrub: true,
       animation: tl,
     });
 

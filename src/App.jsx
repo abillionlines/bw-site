@@ -4,7 +4,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 import "./App.css";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -17,6 +16,12 @@ import LoginModal from "./components/LoginModal";
 import SiteGate from "./components/SiteGate";
 import TransitionScene from "./components/TransitionScene";
 import { supabase } from "./supabaseClient";
+
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+// Prevent GSAP from "catching up" after tab focus changes
+gsap.ticker.lagSmoothing(0);
+// Limit ScrollTrigger callbacks to reduce per-frame work during scroll
+ScrollTrigger.config({ limitCallbacks: true, ignoreMobileResize: true });
 
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = loading
@@ -34,8 +39,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Progress bar: update on native scroll
-    // Progress bar — throttled via rAF to avoid layout thrashing
+    // Progress bar
     let progressTick = false;
     const onScroll = () => {
       if (progressTick) return;
@@ -67,15 +71,19 @@ export default function App() {
       });
     });
 
-    // Recalculate after images/fonts have loaded — critical when mounting
-    // after login gate since large images shifts page height significantly
-    const refresh2 = setTimeout(() => ScrollTrigger.refresh(), 1500);
-    window.addEventListener("load", () => ScrollTrigger.refresh());
+    // Recalculate after all resources have loaded.
+    // Guard against the race where window.load already fired before this effect ran.
+    if (document.readyState === "complete") {
+      ScrollTrigger.refresh();
+    } else {
+      window.addEventListener("load", () => ScrollTrigger.refresh(), {
+        once: true,
+      });
+    }
 
     return () => {
-      clearTimeout(refresh2);
-      ScrollTrigger.getAll().forEach((t) => t.kill());
       window.removeEventListener("scroll", onScroll);
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
 

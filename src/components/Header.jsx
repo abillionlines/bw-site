@@ -14,7 +14,7 @@ export default function Header() {
         timeout = setTimeout(() => setScrolled(false), 5000);
       }
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(timeout);

@@ -54,7 +54,7 @@ export default function Hear() {
           trigger: pinSection,
           start: "top 80%",
           end: "bottom 20%",
-          scrub: 1,
+          scrub: true,
         },
       });
       fadeTl

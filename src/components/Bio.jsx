@@ -41,32 +41,33 @@ export default function Bio() {
       scrollTrigger: {
         trigger: revealStack,
         start: "top top",
-        end: "+=1200vh",
+        end: "+=500vh",
         pin: true,
         pinSpacing: true,
-        scrub: 2.5,
+        scrub: true,
       },
     });
 
-    // Phase 0 (0 – 0.08): brief settle after pin engages (no animation)
-
-    // Phase 1 (0.25 – 0.55): slow cross-fade watch → bio
+    // Phase 1 (0 – 0.35): cross-fade watch → bio — starts the instant pin engages
     if (watchEl) {
       masterTl.to(
         watchEl,
-        { opacity: 0, duration: 0.25, ease: "power1.inOut" },
-        0.25,
+        { opacity: 0, duration: 0.35, ease: "power1.inOut" },
+        0,
       );
       masterTl.set(
         watchEl,
         { visibility: "hidden", pointerEvents: "none" },
-        0.5,
+        0.35,
       );
     }
-    masterTl.to(bio, { opacity: 1, duration: 0.28, ease: "power1.inOut" }, 0.3);
+    masterTl.to(
+      bio,
+      { opacity: 1, duration: 0.35, ease: "power1.inOut" },
+      0.05,
+    );
 
-    // Phase 2 (0.60 – 1.0): pan bio content up for reading
-    // Use fromTo with explicit y:0 start to avoid any baseline offset issues
+    // Phase 2 (0.35 – 1.0): pan bio content up for reading
     // Clamp so panTarget is never positive — if content fits in the viewport,
     // no panning is needed (a positive value would scroll the wrong direction).
     const panTarget = Math.min(
@@ -78,10 +79,10 @@ export default function Bio() {
       { y: 0 },
       {
         y: panTarget,
-        duration: 0.4,
+        duration: 0.65,
         ease: "none",
       },
-      0.6,
+      0.35,
     );
 
     return () => {

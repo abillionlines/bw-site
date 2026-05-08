@@ -34,7 +34,7 @@ html {
   height: 100%;
   min-height: unset;
   display: block;
-  overflow: visible;
+  overflow: hidden;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -45,7 +45,7 @@ html {
   z-index: 1;
 }
 .reveal-stack__bio .bio {
-  overflow: visible;
+  overflow: visible; /* text can extend beyond the viewport-height wrapper during pan */
 }
 
 /* Teal breathing room between Hero and transition scene */
@@ -130,7 +130,6 @@ html {
   height: 100%;
   background: #fff;
   pointer-events: none;
-  will-change: opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -147,7 +146,6 @@ html {
     rgba(170, 133, 82, 0.2) 60%,
     transparent 100%
   );
-  will-change: opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -222,8 +220,7 @@ html {
   transition: background-color 5s ease;
 }
 .header.scrolled {
-  background-color: rgba(55, 79, 78, 0.7);
-  backdrop-filter: blur(8px);
+  background-color: rgba(40, 60, 59, 0.92);
 }
 .header.at-top {
   background-color: var(--navy);
@@ -277,8 +274,7 @@ html {
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    background: rgba(55, 79, 78, 0.95);
-    backdrop-filter: blur(12px);
+    background: rgba(40, 60, 59, 0.97);
     border-radius: 12px;
     padding: 12px 0;
     gap: 0;
@@ -496,9 +492,6 @@ html {
   opacity: 0.35;
   pointer-events: none;
   z-index: 0;
-  will-change: transform;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
 }
 .hear__title {
   font-family: "Love Light", cursive;
@@ -513,15 +506,9 @@ html {
   display: flex;
   justify-content: center;
   flex-wrap: nowrap;
-  will-change: transform;
-  text-shadow:
-    0 0 12px rgba(237, 189, 149, 0.9),
-    0 0 30px rgba(237, 189, 149, 0.6),
-    0 0 60px rgba(237, 189, 149, 0.35);
 }
 .hear__title-char {
   display: inline-block;
-  will-change: transform, opacity;
 }
 .hear__player {
   position: relative;
@@ -733,7 +720,6 @@ html {
   overflow: hidden;
   background: var(--steel);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  will-change: transform;
   position: relative;
   cursor: pointer;
 }
@@ -862,6 +848,9 @@ html {
   width: 100%;
   margin: 0 auto;
   padding-top: 145px;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 .bio__title {
   font-family: var(--font);

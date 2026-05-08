@@ -14,11 +14,10 @@ import img3 from "../assets/hero-images/StillWater Post 2.webp";
 import img4 from "../assets/hero-images/Still Water Portrait 21.webp";
 import img5 from "../assets/hero-images/Still Water Portrait 16.webp";
 import img6 from "../assets/hero-images/Still Water Portrait 18.webp";
-import img7 from "../assets/hero-images/Still Water Cacti Sunset.webp";
 import img8 from "../assets/hero-images/Still Water Dock Silhouette.webp";
 
-const allImages = [img1, img2, img3, img4, img5, img6, img7, img8];
-const mobileImages = [img2, img3, img4, img5, img6, img7, img8];
+const allImages = [img1, img2, img3, img4, img5, img6, img8];
+const mobileImages = [img2, img3, img4, img5, img6, img8];
 
 // Shuffle array using Fisher-Yates
 function shuffle(arr) {
@@ -53,12 +52,9 @@ export default function Hero() {
   return (
     <section id="hero" className="hero" ref={containerRef}>
       {images.map((src, i) => (
-        <motion.div
-          key={i}
-          className={`hero__slide ${i === current ? "active" : ""}`}
-        >
+        <div key={i} className={`hero__slide ${i === current ? "active" : ""}`}>
           <img src={src} alt={`Brian Wilkinson slide ${i + 1}`} />
-        </motion.div>
+        </div>
       ))}
 
       <div className="hero__overlay">
