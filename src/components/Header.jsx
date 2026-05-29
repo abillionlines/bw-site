@@ -35,26 +35,6 @@ export default function Header() {
       return;
     }
 
-    if (id === "bio") {
-      const stack = document.querySelector(".reveal-stack");
-      if (stack) {
-        // The pinned reveal-stack is wrapped in a .pin-spacer by GSAP.
-        // Scroll ~40% into the spacer to land on the bio phase of the timeline.
-        const spacer = stack.closest(".pin-spacer") || stack;
-        const target = spacer.offsetTop + spacer.offsetHeight * 0.4;
-        window.scrollTo({ top: target, behavior: "smooth" });
-        return;
-      }
-    }
-    if (id === "watch") {
-      const stack = document.querySelector(".reveal-stack");
-      if (stack) {
-        // Scroll to the top of the pin-spacer to land on Watch
-        const spacer = stack.closest(".pin-spacer") || stack;
-        window.scrollTo({ top: spacer.offsetTop, behavior: "smooth" });
-        return;
-      }
-    }
     if (id === "hear") {
       const el = document.getElementById("hear");
       if (el) {
@@ -72,7 +52,6 @@ export default function Header() {
       <nav className={`header__nav ${menuOpen ? "open" : ""}`}>
         <button onClick={() => scrollTo("hero")}>Home</button>
         <button onClick={() => scrollTo("hear")}>Hear</button>
-        <button onClick={() => scrollTo("watch")}>Watch</button>
         <button onClick={() => scrollTo("bio")}>Bio</button>
         <button onClick={() => scrollTo("contact")}>Contact</button>
       </nav>

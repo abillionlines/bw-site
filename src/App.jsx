@@ -8,7 +8,6 @@ import "./App.css";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Hear from "./components/Hear";
-import Watch from "./components/Watch";
 import Bio from "./components/Bio";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
@@ -120,13 +119,8 @@ export default function App() {
         <div className="pin-section pin-section--hear">
           <Hear />
         </div>
-        <div className="reveal-stack">
-          <div className="pin-section reveal-stack__watch">
-            <Watch />
-          </div>
-          <div className="pin-section reveal-stack__bio">
-            <Bio />
-          </div>
+        <div className="bio-flow">
+          <Bio />
         </div>
         <div className="pin-section pin-section--contact">
           <Contact />

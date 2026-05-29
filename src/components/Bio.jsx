@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function Bio() {
   const bioRef = useRef(null);
@@ -9,85 +8,21 @@ export default function Bio() {
     const bio = bioRef.current;
     if (!bio) return;
 
-    const revealStack = bio.closest(".reveal-stack");
-    const watchEl = revealStack?.querySelector(".reveal-stack__watch");
+    gsap.set(bio, { opacity: 0, y: 40 });
 
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-
-    if (isMobile) {
-      // On mobile, bio starts hidden and fades in on scroll
-      gsap.set(bio, { opacity: 0, y: 40 });
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: bio,
-          start: "top 60%",
-          end: "top 5%",
-          scrub: 1,
-        },
-      });
-      tl.to(bio, { opacity: 1, y: 0, duration: 1, ease: "none" });
-      return () => {
-        tl.scrollTrigger?.kill();
-        tl.kill();
-      };
-    }
-
-    // Desktop: reveal-stack is pinned for 350vh of scroll travel.
-    // Both watch & bio are absolutely positioned (overlapping).
-    // Timeline phases: settle → cross-fade → pan bio text.
-    gsap.set(bio, { opacity: 0, y: 0 });
-
-    const masterTl = gsap.timeline({
+    const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: revealStack,
-        start: "top top",
-        end: "+=500vh",
-        pin: true,
-        pinSpacing: true,
-        scrub: true,
+        trigger: bio,
+        start: "top 70%",
+        end: "top 25%",
+        scrub: 1,
       },
     });
-
-    // Phase 1 (0 – 0.35): cross-fade watch → bio — starts the instant pin engages
-    if (watchEl) {
-      masterTl.to(
-        watchEl,
-        { opacity: 0, duration: 0.35, ease: "power1.inOut" },
-        0,
-      );
-      masterTl.set(
-        watchEl,
-        { visibility: "hidden", pointerEvents: "none" },
-        0.35,
-      );
-    }
-    masterTl.to(
-      bio,
-      { opacity: 1, duration: 0.35, ease: "power1.inOut" },
-      0.05,
-    );
-
-    // Phase 2 (0.35 – 1.0): pan bio content up for reading
-    // Clamp so panTarget is never positive — if content fits in the viewport,
-    // no panning is needed (a positive value would scroll the wrong direction).
-    const panTarget = Math.min(
-      0,
-      -(bio.scrollHeight - window.innerHeight + 80),
-    );
-    masterTl.fromTo(
-      bio,
-      { y: 0 },
-      {
-        y: panTarget,
-        duration: 0.65,
-        ease: "none",
-      },
-      0.35,
-    );
+    tl.to(bio, { opacity: 1, y: 0, duration: 1, ease: "none" });
 
     return () => {
-      masterTl.scrollTrigger?.kill();
-      masterTl.kill();
+      tl.scrollTrigger?.kill();
+      tl.kill();
     };
   }, []);
 

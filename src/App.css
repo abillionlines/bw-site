@@ -12,6 +12,11 @@ html {
   background: #1a2d2c;
 }
 
+.bio-flow {
+  min-height: 100vh;
+  background: #1a2d2c;
+}
+
 /* Watch / Bio stacking reveal */
 .reveal-stack {
   position: relative;
